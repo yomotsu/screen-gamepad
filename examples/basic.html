@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>=^.^=</title>
+<style>
+.screenGamepad-Button {
+  left: 300px;
+}
+</style>
+</head>
+<body>
+
+<script src="../dist/screen-gamepad.js"></script>
+<script>
+const joystick = new screenGamepad.Joystick();
+document.body.appendChild( joystick.domElement );
+joystick.addEventListener( 'change', function() {
+  console.log(
+    screenGamepad.utils.roundToStep( joystick.x, 0.1 ),
+    screenGamepad.utils.roundToStep( joystick.y, 0.1 ),
+    joystick.angle
+  );
+} );
+
+
+const button = new screenGamepad.Button();
+document.body.appendChild( button.domElement );
+button.addEventListener( 'change', function() {
+  console.log( button.isActive );
+} );
+</script>
+
+</body>
+</html>
