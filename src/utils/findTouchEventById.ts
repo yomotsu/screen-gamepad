@@ -10,6 +10,6 @@ export function findTouchEventById( event: TouchEvent, identifier: number ) {
 
 	}
 
-	return event.changedTouches[ 0 ];
+	return null;
 
 }

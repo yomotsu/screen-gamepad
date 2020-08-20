@@ -1,4 +1,5 @@
 import { EventDispatcher } from './EventDispatcher';
+import { findTouchEventById } from './utils/findTouchEventById';
 import { isTouchEvent } from './utils/isTouchEvent';
 
 const $style = document.createElement( 'style' );
@@ -86,10 +87,10 @@ export class Joystick extends EventDispatcher {
 
 			const _isTouchEvent = isTouchEvent( event );
 			const _event = _isTouchEvent
-				? ( event as TouchEvent ).changedTouches[ 0 ]
+				? findTouchEventById( event as TouchEvent, this._pointerId )
 				: ( event as MouseEvent );
 
-			if ( _isTouchEvent && ( _event as Touch ).identifier !== this._pointerId ) return;
+			if ( ! _event ) return; // if multi-touch move doesn't contain `this._pointerId`
 
 			const lastX = this._x;
 			const lastY = this._y;
@@ -138,13 +139,12 @@ export class Joystick extends EventDispatcher {
 			event.preventDefault();
 			const _isTouchEvent = isTouchEvent( event );
 			const _event = _isTouchEvent
-				? ( event as TouchEvent ).touches[ 0 ]
+				? ( event as TouchEvent ).changedTouches[ 0 ]
 				: ( event as MouseEvent );
 
 			if ( _isTouchEvent ) {
 
-				const changedTouches = ( event as TouchEvent ).changedTouches;
-				this._pointerId = changedTouches[ changedTouches.length - 1 ].identifier;
+				this._pointerId = ( _event as Touch ).identifier;
 
 			}
 

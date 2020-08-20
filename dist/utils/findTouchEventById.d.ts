@@ -1,1 +1,1 @@
-export declare function findTouchEventById(event: TouchEvent, identifier: number): Touch;
+export declare function findTouchEventById(event: TouchEvent, identifier: number): Touch | null;

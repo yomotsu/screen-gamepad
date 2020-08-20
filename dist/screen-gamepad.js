@@ -81,6 +81,15 @@
 	    return EventDispatcher;
 	}());
 
+	function findTouchEventById(event, identifier) {
+	    for (var i = 0, l = event.changedTouches.length; i < l; i++) {
+	        if (identifier === event.changedTouches[i].identifier) {
+	            return event.changedTouches[i];
+	        }
+	    }
+	    return null;
+	}
+
 	function isTouchEvent(event) {
 	    return 'TouchEvent' in window && event instanceof TouchEvent;
 	}
@@ -127,9 +136,9 @@
 	            event.preventDefault();
 	            var _isTouchEvent = isTouchEvent(event);
 	            var _event = _isTouchEvent
-	                ? event.changedTouches[0]
+	                ? findTouchEventById(event, _this._pointerId)
 	                : event;
-	            if (_isTouchEvent && _event.identifier !== _this._pointerId)
+	            if (!_event)
 	                return;
 	            var lastX = _this._x;
 	            var lastY = _this._y;
@@ -166,11 +175,10 @@
 	            event.preventDefault();
 	            var _isTouchEvent = isTouchEvent(event);
 	            var _event = _isTouchEvent
-	                ? event.touches[0]
+	                ? event.changedTouches[0]
 	                : event;
 	            if (_isTouchEvent) {
-	                var changedTouches = event.changedTouches;
-	                _this._pointerId = changedTouches[changedTouches.length - 1].identifier;
+	                _this._pointerId = _event.identifier;
 	            }
 	            _this._elRect = _this.domElement.getBoundingClientRect();
 	            _this._isActive = true;
@@ -239,15 +247,6 @@
 	    return Joystick;
 	}(EventDispatcher));
 
-	function findTouchEventById(event, identifier) {
-	    for (var i = 0, l = event.changedTouches.length; i < l; i++) {
-	        if (identifier === event.changedTouches[i].identifier) {
-	            return event.changedTouches[i];
-	        }
-	    }
-	    return event.changedTouches[0];
-	}
-
 	var SVG_NS = 'http://www.w3.org/2000/svg';
 	var $style$1 = document.createElement('style');
 	$style$1.innerHTML = "\n.screenGamepad-Button {\n\tcursor: pointer;\n\t-ms-touch-action : none;\n\t    touch-action : none;\n\t-webkit-user-select: none;\n\t    -ms-user-select: none;\n\t        user-select: none;\n\tposition: absolute;\n}\n\n.screenGamepad-Button__HitArea {\n\tcolor: rgba( 0, 0, 0, .5 );\n}\n";
@@ -280,6 +279,8 @@
 	            var _event = _isTouchEvent
 	                ? findTouchEventById(event, _this._pointerId)
 	                : event;
+	            if (!_event)
+	                return;
 	            var x = _event.clientX;
 	            var y = _event.clientY;
 	            var $intersectedElement = document.elementFromPoint(x, y);

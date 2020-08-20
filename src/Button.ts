@@ -70,6 +70,8 @@ export class Button extends EventDispatcher {
 				? findTouchEventById( event as TouchEvent, this._pointerId )
 				: ( event as MouseEvent );
 
+			if ( ! _event ) return; // if multi-touch move doesn't contain `this._pointerId`
+
 			const x = _event.clientX;
 			const y = _event.clientY;
 			const $intersectedElement = document.elementFromPoint( x, y );
