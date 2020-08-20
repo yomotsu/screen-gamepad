@@ -1,6 +1,5 @@
 import { EventDispatcher } from './EventDispatcher';
 import { isTouchEvent } from './utils/isTouchEvent';
-import { findTouchEventById } from './utils/findTouchEventById';
 
 const $style = document.createElement( 'style' );
 $style.innerHTML = `
@@ -87,15 +86,10 @@ export class Joystick extends EventDispatcher {
 
 			const _isTouchEvent = isTouchEvent( event );
 			const _event = _isTouchEvent
-				? findTouchEventById( event as TouchEvent, this._pointerId )
+				? ( event as TouchEvent ).changedTouches[ 0 ]
 				: ( event as MouseEvent );
 
-			if ( _isTouchEvent ) {
-
-				const changedTouches = ( event as TouchEvent ).changedTouches;
-				this._pointerId = changedTouches[ changedTouches.length - 1 ].identifier;
-
-			}
+			if ( _isTouchEvent && ( _event as Touch ).identifier !== this._pointerId ) return;
 
 			const lastX = this._x;
 			const lastY = this._y;
@@ -114,6 +108,13 @@ export class Joystick extends EventDispatcher {
 		const onButtonMoveEnd = ( event: Event ) => {
 
 			event.preventDefault();
+
+			const _isTouchEvent = isTouchEvent( event );
+			const _event = _isTouchEvent
+				? ( event as TouchEvent ).changedTouches[ 0 ]
+				: ( event as MouseEvent );
+
+			if ( _isTouchEvent && ( _event as Touch ).identifier !== this._pointerId ) return;
 
 			document.removeEventListener( 'mousemove', onButtonMove );
 			document.removeEventListener( 'touchmove', onButtonMove, { passive: false } as AddEventListenerOptions );

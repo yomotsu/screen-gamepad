@@ -79,15 +79,6 @@ function isTouchEvent(event) {
     return 'TouchEvent' in window && event instanceof TouchEvent;
 }
 
-function findTouchEventById(event, identifier) {
-    for (var i = 0, l = event.changedTouches.length; i < l; i++) {
-        if (identifier === event.changedTouches[i].identifier) {
-            return event.changedTouches[i];
-        }
-    }
-    return event.changedTouches[0];
-}
-
 var $style = document.createElement('style');
 $style.innerHTML = "\n.screenGamepad-Joystick {\n\tcursor: pointer;\n\t-ms-touch-action : none;\n\t    touch-action : none;\n\t-webkit-user-select: none;\n\t    -ms-user-select: none;\n\t        user-select: none;\n\tposition: absolute;\n\tbackground: url( \"data:image/svg+xml,%3Csvg%20viewBox=%220%200%20128%20128%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22m64%2011.9%208%208.2h-16z%22%20opacity=%22.5%22/%3E%3Cpath%20d=%22m116.1%2064-8.2%208v-16z%22%20opacity=%22.5%22/%3E%3Cpath%20d=%22m64%20116.1%208-8.2h-16z%22%20opacity=%22.5%22/%3E%3Cpath%20d=%22m11.9%2064%208.2%208v-16z%22%20opacity=%22.5%22/%3E%3Ccircle%20cx=%2264%22%20cy=%2264%22%20fill=%22none%22%20opacity=%22.5%22%20r=%2260%22%20stroke=%22%23000%22%20stroke-width=%228%22/%3E%3C/svg%3E\" ) 0 0 / 100% 100%;\n}\n\n.screenGamepad-Joystick__Button {\n\tpointer-events: none;\n\tposition: absolute;\n\ttop: 20%;\n\tleft: 20%;\n\tbox-sizing: border-box;\n\twidth: 60%;\n\theight: 60%;\n  border-radius: 50%;\n  border: 1px solid #333;\n  background: rgba( 0, 0, 0, .5 );\n}\n";
 document.head.insertBefore($style, document.head.firstChild);
@@ -130,12 +121,10 @@ var Joystick = (function (_super) {
             event.preventDefault();
             var _isTouchEvent = isTouchEvent(event);
             var _event = _isTouchEvent
-                ? findTouchEventById(event, _this._pointerId)
+                ? event.changedTouches[0]
                 : event;
-            if (_isTouchEvent) {
-                var changedTouches = event.changedTouches;
-                _this._pointerId = changedTouches[changedTouches.length - 1].identifier;
-            }
+            if (_isTouchEvent && _event.identifier !== _this._pointerId)
+                return;
             var lastX = _this._x;
             var lastY = _this._y;
             var offsetX = (_event.clientX - window.pageXOffset - _this._elRect.left);
@@ -148,6 +137,12 @@ var Joystick = (function (_super) {
         };
         var onButtonMoveEnd = function (event) {
             event.preventDefault();
+            var _isTouchEvent = isTouchEvent(event);
+            var _event = _isTouchEvent
+                ? event.changedTouches[0]
+                : event;
+            if (_isTouchEvent && _event.identifier !== _this._pointerId)
+                return;
             document.removeEventListener('mousemove', onButtonMove);
             document.removeEventListener('touchmove', onButtonMove, { passive: false });
             document.removeEventListener('mouseup', onButtonMoveEnd);
@@ -237,6 +232,15 @@ var Joystick = (function (_super) {
     };
     return Joystick;
 }(EventDispatcher));
+
+function findTouchEventById(event, identifier) {
+    for (var i = 0, l = event.changedTouches.length; i < l; i++) {
+        if (identifier === event.changedTouches[i].identifier) {
+            return event.changedTouches[i];
+        }
+    }
+    return event.changedTouches[0];
+}
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
 var $style$1 = document.createElement('style');

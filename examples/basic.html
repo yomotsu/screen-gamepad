@@ -15,12 +15,28 @@
 <script src="../dist/screen-gamepad.js"></script>
 <script>
 const joystick = new screenGamepad.Joystick();
+joystick.domElement.style.position = 'absolute';
+joystick.domElement.style.top = '100px';
+joystick.domElement.style.left = 0;
 document.body.appendChild( joystick.domElement );
 joystick.addEventListener( 'change', function() {
   console.log(
     screenGamepad.utils.roundToStep( joystick.x, 0.1 ),
     screenGamepad.utils.roundToStep( joystick.y, 0.1 ),
     joystick.angle
+  );
+} );
+
+const joystick2 = new screenGamepad.Joystick();
+joystick2.domElement.style.position = 'absolute';
+joystick2.domElement.style.top = '100px';
+joystick2.domElement.style.right = 0;
+document.body.appendChild( joystick2.domElement );
+joystick2.addEventListener( 'change', function() {
+  console.log(
+    screenGamepad.utils.roundToStep( joystick2.x, 0.1 ),
+    screenGamepad.utils.roundToStep( joystick2.y, 0.1 ),
+    joystick2.angle
   );
 } );
 
