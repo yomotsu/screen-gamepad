@@ -4,7 +4,7 @@
  * (c) 2020 @yomotsu
  * Released under the MIT License.
  */
-/*! *****************************************************************************
+/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -18,7 +18,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
@@ -28,10 +28,17 @@ var extendStatics = function(d, b) {
 };
 
 function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 
 var EventDispatcher = (function () {
     function EventDispatcher() {
@@ -108,8 +115,8 @@ var Joystick = (function (_super) {
         if (options.size)
             _this._size = options.size;
         _this.domElement.classList.add('screenGamepad-Joystick');
-        _this.domElement.style.width = _this._size + "px";
-        _this.domElement.style.height = _this._size + "px";
+        _this.domElement.style.width = "".concat(_this._size, "px");
+        _this.domElement.style.height = "".concat(_this._size, "px");
         _this._$button.classList.add('screenGamepad-Joystick__Button');
         _this.domElement.appendChild(_this._$button);
         var computePosition = function (offsetX, offsetY) {
@@ -236,7 +243,7 @@ var Joystick = (function (_super) {
         var radius = this._size / 2;
         var x = this._x * radius;
         var y = -this._y * radius;
-        this._$button.style.transform = "translate( " + x + "px, " + y + "px )";
+        this._$button.style.transform = "translate( ".concat(x, "px, ").concat(y, "px )");
     };
     return Joystick;
 }(EventDispatcher));
@@ -260,8 +267,8 @@ var Button = (function (_super) {
         _this._$hitArea.innerHTML = options.shape || Button.BUTTON_SHAPE_CIRCLE;
         _this.domElement.classList.add('screenGamepad-Button');
         _this.domElement.setAttribute('viewBox', '0 0 1 1');
-        _this.domElement.style.width = _this._size + "px";
-        _this.domElement.style.height = _this._size + "px";
+        _this.domElement.style.width = "".concat(_this._size, "px");
+        _this.domElement.style.height = "".concat(_this._size, "px");
         _this._$hitArea.classList.add('screenGamepad-Button__HitArea');
         _this.domElement.appendChild(_this._$hitArea);
         var hitRect = _this.domElement.createSVGRect();
