@@ -63,14 +63,14 @@ export class Button extends EventDispatcher {
 
 		const onButtonMove = ( event: Event ) => {
 
-			event.preventDefault();
-
 			const _isTouchEvent = isTouchEvent( event );
 			const _event = _isTouchEvent
 				? findTouchEventById( event as TouchEvent, this._pointerId )
 				: ( event as MouseEvent );
 
 			if ( ! _event ) return; // if multi-touch move doesn't contain `this._pointerId`
+
+			event.preventDefault();
 
 			const x = _event.clientX;
 			const y = _event.clientY;
@@ -101,12 +101,16 @@ export class Button extends EventDispatcher {
 
 		const onButtonUp = ( event: Event ) => {
 
+			// another finger is released. keep tracking.
+			if ( isTouchEvent( event ) && ! findTouchEventById( event as TouchEvent, this._pointerId ) ) return;
+
 			event.preventDefault();
 
 			document.removeEventListener( 'mousemove', onButtonMove );
 			document.removeEventListener( 'touchmove', onButtonMove, { passive: false } as AddEventListenerOptions );
 			document.removeEventListener( 'mouseup', onButtonUp );
 			document.removeEventListener( 'touchend', onButtonUp );
+			document.removeEventListener( 'touchcancel', onButtonUp );
 
 			this._pointerId = - 1;
 
@@ -121,13 +125,17 @@ export class Button extends EventDispatcher {
 
 		const onButtonDown = ( event: Event ) => {
 
+			event.preventDefault();
+			const _isTouchEvent = isTouchEvent( event );
+
+			// already held by another finger.
+			if ( _isTouchEvent && this._pointerId !== - 1 ) return;
+
 			document.removeEventListener( 'mousemove', onButtonMove );
 			document.removeEventListener( 'touchmove', onButtonMove, { passive: false } as AddEventListenerOptions );
 			document.removeEventListener( 'mouseup', onButtonUp );
 			document.removeEventListener( 'touchend', onButtonUp );
-
-			event.preventDefault();
-			const _isTouchEvent = isTouchEvent( event );
+			document.removeEventListener( 'touchcancel', onButtonUp );
 
 			if ( _isTouchEvent ) {
 
@@ -143,6 +151,7 @@ export class Button extends EventDispatcher {
 			document.addEventListener( 'touchmove', onButtonMove, { passive: false } as AddEventListenerOptions );
 			document.addEventListener( 'mouseup', onButtonUp );
 			document.addEventListener( 'touchend', onButtonUp );
+			document.addEventListener( 'touchcancel', onButtonUp );
 
 			this.dispatchEvent( { type: 'active' } );
 			this.dispatchEvent( { type: 'change' } );
